@@ -1,0 +1,61 @@
+USE [Retail_Mart]
+
+go 
+DROP Table FactRetail
+
+CREATE TABLE [dbo].[FactRetail](
+	[FactRetail_id] int identity (1,1),
+	[OrderItemQty] [INT] NULL,
+	[OrderItemProductPrice] [INT] NULL,
+	[OrderItemSubTotal] [NUMERIC](38, 6) NULL,
+	[SalesPrice] [INT] NULL,
+	[Profit] [INT] NULL,
+	[WeekOfMonth] [INT] NULL,
+	[Month] [INT] NULL,
+	[Year] [INT] NULL,
+	[OrdersKey] [INT] NULL,
+	[ProductKey] [INT] NULL,
+	[CategoryKey] [INT] NULL,
+	[CustomerKey] [INT] NUll,
+	[DepartmentKey] [INT] NULL,
+	[OrdersItemKey][INT] NULL,
+	[OrderDateKey] [INT] NULL
+	
+) ON [PRIMARY]
+GO
+
+Insert into FactRetail (OrderItemSubTotal, OrderItemProductPrice, OrderItemQty, SalesPrice, Profit,OrdersKey, 
+ProductKey, CategoryKey, CustomerKey, DepartmentKey, OrdersItemKey, OrderDateKey, WeekOfMonth, Month, Year)
+select
+ sum(od.order_item_subtotal) OrderItemSubTotal
+,sum(od.order_item_product_price) ProductPrice
+,sum(od.order_item_quantity) OrderItemQty
+,(sum(od.order_item_product_price) + sum(od.order_item_product_price)* 0.2) SalesPrice
+,(((sum(od.order_item_product_price) + sum(od.order_item_product_price)* 0.2)* sum(od.order_item_quantity)) -sum(od.order_item_subtotal))Profit
+,dimo.OrdersKey
+,dimp.ProductKey
+,dimc.CategoryKey
+,dimcu.CustomerKey
+,dimd.DepartmentKey
+,dimord.OrdersItemKey
+,orderdate.DateKey OrderDateKey
+,orderdate.WeekOfMonth
+,orderdate.Month
+,orderdate.Year
+
+from Retail_Database.retail_database.customers cu
+left join Retail_DWH.retail_database.orders o on o.order_customer_id= cu.customer_id
+left join Retail_DWH.retail_database.order_items od on od.order_item_order_id = o.order_id
+left join Retail_DWH.retail_database.products p on p.product_id=od.order_item_product_id
+left join Retail_DWH.retail_database.categories c on c.category_id = p.product_category_id
+left join Retail_DWH.retail_database.departments d on d.department_id = c.category_department_id
+
+left join DimProducts dimp on dimp.ProductID = p.product_id
+left join DimOrders dimo on dimo.OrderID = o.order_id
+left join DimCategories dimc on dimc.CategoryID = c.category_id
+left join DimCustomers dimcu on dimcu.CustomerID = cu.customer_id
+left join DimDepartments dimd on dimd.DepartmentID = d.department_id
+left join DimOrderItems dimord on dimord.OrdersItemKey = od.order_item_id
+left join DimDate orderdate on orderdate.Date =o.order_date
+
+group by dimp.ProductKey, dimo.OrdersKey, dimc.CategoryKey, dimcu.CustomerKey, dimd.DepartmentKey, dimord.OrdersItemKey, orderdate.DateKey, orderdate.WeekOfMonth, orderdate.Month, orderdate.Year

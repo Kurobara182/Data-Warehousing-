@@ -1,0 +1,56 @@
+2.3 
+--Monthly/Weekly report of all products as per departments
+SELECT dbo.DimDate.WeekOfMonth, dbo.DimDate.Month, dbo.DimDate.Year, dbo.DimProducts.ProductName, dbo.DimDepartments.DepartmentName
+FROM dbo.DimDate,dbo.FactRetail, dbo.DimProducts, dbo.DimDepartments
+WHERE dbo.DimDate.DateKey=dbo.FactRetail.OrderDateKey
+
+GROUP BY dbo.DimDate.WeekOfMonth, dbo.DimDate.Month, dbo.DimDate.Year, dbo.DimProducts.ProductName, dbo.DimDepartments.DepartmentName
+
+
+--Profit analysis for different departments.
+SELECT dbo.DimDepartments.DepartmentName,
+SUM(dbo.FactRetail.Profit) profit
+FROM dbo.DimDepartments,dbo.FactRetail
+WHERE dbo.DimDepartments.DepartmentID=dbo.FactRetail.DepartmentKey
+GROUP BY dbo.DimDepartments.DepartmentName
+ORDER BY profit DESC;
+
+--Top Revenue generating items.
+SELECT dbo.DimOrderItems.OrdersItemKey, dbo.DimProducts.ProductName,
+SUM(dbo.FactRetail.SalesPrice) revenue
+FROM dbo.DimOrderItems,dbo.FactRetail, dbo.DimProducts
+WHERE dbo.DimOrderItems.OrdersItemKey =dbo.FactRetail.OrdersItemKey
+and
+dbo.DimProducts.ProductID=dbo.FactRetail.ProductKey
+GROUP BY dbo.DimOrderItems.OrdersItemKey, dbo.DimProducts.ProductName
+ORDER BY revenue DESC;
+
+--Find the reasons of Rejects/Cancelled orders.
+SELECT COUNT(dbo.FactRetail.OrdersKey) as Cancel ,p.ProductName
+	FROM dbo.FactRetail
+	left join DimOrders o on o.OrdersKey= FactRetail.OrdersKey
+	left join DimProducts p on p.ProductKey= FactRetail.productKey
+	WHERE o.OrderStatus='CANCELED'
+	group by FactRetail.ProductKey,p.ProductName
+	order by Cancel DESC;
+
+--Daily and monthly analysis of top selling products.
+--Daily
+SELECT dbo.DimDate.Date, dbo.DimProducts.ProductName,
+SUM(dbo.FactRetail.OrderItemSubTotal) totalorderprice
+FROM dbo.DimDate,dbo.FactRetail, dbo.DimProducts
+WHERE dbo.DimDate.DateKey=dbo.FactRetail.OrderDateKey
+and
+dbo.DimProducts.ProductID=dbo.FactRetail.ProductKey
+GROUP BY dbo.DimDate.Date, dbo.DimProducts.ProductName
+
+ORDER BY totalorderprice DESC;
+
+--Monthly 
+SELECT dbo.DimDate.Month, dbo.DimProducts.ProductName,
+SUM(dbo.FactRetail.OrderItemSubTotal) totalorderprice
+FROM dbo.DimDate,dbo.FactRetail, dbo.DimProducts
+WHERE dbo.DimDate.DateKey=dbo.FactRetail.OrderDateKey
+and
+dbo.DimProducts.ProductID=dbo.FactRetail.ProductKey
+GROUP BY dbo.DimDate.Month, dbo.DimProducts.ProductName

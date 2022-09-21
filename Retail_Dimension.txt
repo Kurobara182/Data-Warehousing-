@@ -1,0 +1,88 @@
+--SQL Queries for Dimension Table
+--Creating Dimorders table in Retail_Mart
+
+Create table DimOrders(
+ OrdersKey int Not null identity(1,1),
+ OrderStatus varchar(200),
+ OrderID varchar(200)
+)
+Insert into DimOrders(OrderID, OrderStatus)
+SELECT order_id as OrderID,order_status as OrderStatus
+from Retail_DWH.[retail_database].[orders]
+
+--Creating DimCategories table in Retail_Mart
+Create table DimCategories(
+ CategoryKey int Not null identity(1,1),
+ CategoryID varchar(200),
+ CategoryName varchar(200)
+)
+Insert into DimCategories(CategoryID, CategoryName)
+SELECT category_id as CategoryID,category_name as CategoryName
+  FROM [Retail_DWH].[retail_database].[categories]
+
+
+
+--Creating DimDepartment table in Retail_Mart
+Create table DimDepartments(
+ DepartmentKey int Not null identity(1,1),
+ DepartmentID varchar(200),
+ DepartmentName varchar(200)
+)
+
+Insert into DimDepartments(DepartmentID, DepartmentName)
+SELECT department_id as DepartmentID,department_name as DepartmentName
+  FROM [Retail_DWH].[retail_database].[departments]
+
+--Creating DimOrderItems in Retail_Mart
+Create table DimOrderItems(
+ OrdersItemKey int Not null identity(1,1),
+ OrderItemID varchar(200)
+)
+Insert into DimOrderItems(OrderItemID)
+order_item_id as OrderItemID
+      
+FROM [Retail_DWH].[retail_database].[order_items]
+
+
+--Creating DimProducts table in Retail_Mart
+Create table DimProducts(
+ ProductKey int Not null identity(1,1),
+ ProductID varchar(200),
+ ProductName varchar(200),
+ ProductDescription varchar(200)
+)
+
+Insert into DimProducts(ProductID, ProductName,ProductDescription)
+SELECT product_id as ProductID,product_name as ProductName,product_description as ProductDescription
+  FROM [Retail_DWH].[retail_database].[products]
+
+
+--Creating DimCustomers table Retail_Mart
+Create table DimCustomers(
+ CustomerKey int Not null identity(1,1),
+ CustomerID varchar(200),
+ CustomerFirstName varchar(200),
+ CustomerLastName varchar(200),
+ CustomerEmail varchar(200),
+ CustomerPassword varchar(200),
+ CustomerStreet varchar(200),
+ CustomerCity varchar(200),
+ CustomerState varchar(200),
+ CustomerZipcode varchar(200)
+)
+
+Insert into DimCustomers(CustomerID, CustomerFirstName,CustomerLastName,CustomerEmail,
+CustomerPassword,CustomerStreet,CustomerCity,CustomerState,CustomerZipcode)
+SELECT customer_id as CustomerID,customer_fname as CustomerFirstName,customer_lname as CustomerLastName,
+customer_email as CustomerEmail,customer_password as CustomerPassword, customer_street as CustomerStreet, 
+customer_city as CustomerCity, customer_state as CustomerState, customer_zipcode as CustomerZipcode
+  FROM [Retail_DWH].[retail_database].[customers]
+
+
+
+
+
+
+
+
+
